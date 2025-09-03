@@ -1,7 +1,6 @@
 local keymap = vim.api.nvim_set_keymap
 local default_opts = { noremap = true, silent = true }
 local expr_opts = { noremap = true, expr = true, silent = true }
-local builtin = require('telescope.builtin')
 
 -- Modes
 --   normal_mode = "n",
@@ -26,10 +25,6 @@ keymap("n", "j", "v:count == 0 ? 'gj' : 'j'", expr_opts)
 
 -- Cancel search highlighting with ESC -- not required for nvim lazy starterTemplate
 keymap("n", "<ESC>", ":nohlsearch<Bar>:echo<CR>", default_opts)
-
-vim.keymap.set("n", "<leader>ml", "<cmd>:Lazy<cr>", { desc = "Lazy" })
-vim.keymap.set("n", "<leader>mm", "<cmd>:Mason<cr>", { desc = "Mason" })
-vim.keymap.set('n', '<leader>.', builtin.current_buffer_fuzzy_find, { desc = 'Telescope fuzzy find buffer' })
 
 -- home row jump beginning and end of line
 vim.keymap.set("n", "H", "^")
@@ -64,3 +59,17 @@ vim.keymap.set({ "n", "x" }, "k", function()
   return vim.v.count > 1 and "m'" .. vim.v.count .. "k" or "k"
 end, { noremap = true, expr = true })
 
+local builtin = require('telescope.builtin')
+vim.keymap.set('n', '<leader> ', builtin.find_files, { desc = 'Telescope find files' })
+vim.keymap.set('n', '<leader>/', builtin.live_grep, { desc = 'Telescope live grep' })
+vim.keymap.set('n', '<leader>?', builtin.current_buffer_fuzzy_find, { desc = 'Telescope fuzzy find buffer' })
+vim.keymap.set('n', '<leader>"', builtin.registers, { desc = 'Telescope registers' })
+vim.keymap.set('n', '<leader>.', builtin.current_buffer_fuzzy_find, { desc = 'Telescope fuzzy find buffer' })
+vim.keymap.set('n', '<leader>,', builtin.buffers, { desc = 'Telescope buffers' })
+--        { "<leader>/", "<cmd>Telescope live_grep<cr>", desc = "Grep Files" },
+local neotree = require('neo-tree.command')
+vim.keymap.set('n', '<leader>e', function() neotree.execute({toggle = true}) end, {desc = "Explorer NeoTree (Root Dir)"})
+vim.keymap.set('n', '<leader>E', function() neotree.execute({toggle = true, dir = vim.uv.cwd()}) end, {desc = "Explorer NeoTree (cwd)"})
+-- { "<leader>e", "<leader>fe", desc = "Explorer NeoTree (Root Dir)", remap = true },
+
+--vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
