@@ -5,9 +5,15 @@ end
 local servers = {}
 
 -- Note: Add language servers here
-servers.texlab = {}
-servers.zls = {}
-servers.r_language_server = {}
+if nixCats('latex') then
+  servers.texlab = {}
+end
+if nixCats('zig') then
+  servers.zls = {}
+end
+if nixCats('rPlugin') then
+  servers.r_language_server = {}
+end
 servers.nixd = {}
 servers.lua_ls = {}
 

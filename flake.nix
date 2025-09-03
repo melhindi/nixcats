@@ -130,7 +130,7 @@
 
       # This is for plugins that will load at startup without using packadd:
       startupPlugins = {
-        gitPlugins = with pkgs.neovimPlugins; [
+        rPlugin = with pkgs.neovimPlugins; [
           rNvim
         ];
         general = with pkgs.vimPlugins; [
@@ -241,8 +241,31 @@
         # (and other information to pass to lua)
         categories = {
           general = true;
-          gitPlugins = true;
+          rPlugin = true;
           zig = true;
+          latex = true;
+          themer = true;
+          colorscheme = "gruvbox";
+        };
+      };
+      nixcatsTex = {pkgs, ...}: {
+        # they contain a settings set defined above
+        # see :help nixCats.flake.outputs.settings
+        settings = {
+          suffix-path = true;
+          suffix-LD = true;
+          wrapRc = true;
+          # IMPORTANT:
+          # your alias may not conflict with your other packages.
+          aliases = ["ntex"];
+          # neovim-unwrapped = inputs.neovim-nightly-overlay.packages.${pkgs.system}.neovim;
+        };
+        # and a set of categories that you want
+        # (and other information to pass to lua)
+        categories = {
+          general = true;
+          rPlugin = false;
+          zig = false;
           latex = true;
           themer = true;
           colorscheme = "gruvbox";
