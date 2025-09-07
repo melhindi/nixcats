@@ -13,7 +13,7 @@ require("blink.cmp").setup({
   })
 local luasnip = require 'luasnip'
 require("luasnip.loaders.from_vscode").lazy_load()
-require("luasnip.loaders.from_lua").load({ paths = "./luasnippets" })
+require("luasnip.loaders.from_lua").lazy_load() -- looks in ~/.config/luasnippets by default
 luasnip.config.setup {
     enable_autosnippets = true,
 }
