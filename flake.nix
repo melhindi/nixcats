@@ -126,6 +126,9 @@
         latex = with pkgs; [
           texlab
         ];
+        python = with pkgs; [
+          basedpyright
+        ];
       };
 
       # This is for plugins that will load at startup without using packadd:
@@ -244,6 +247,7 @@
           rPlugin = true;
           zig = true;
           latex = true;
+          python = true;
           themer = true;
           colorscheme = "gruvbox";
         };
@@ -268,6 +272,7 @@
           zig = false;
           latex = true;
           themer = true;
+          python = false;
           colorscheme = "gruvbox";
         };
       };
