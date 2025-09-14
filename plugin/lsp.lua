@@ -5,6 +5,9 @@ end
 local servers = {}
 
 -- Note: Add language servers here
+if nixCats('python') then
+  servers.basedpyright = {}
+end
 if nixCats('latex') then
   servers.texlab = {}
 end
