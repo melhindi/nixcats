@@ -129,6 +129,10 @@
         python = with pkgs; [
           basedpyright
         ];
+        typst = with pkgs; [
+          tinymist
+          typst
+        ];
       };
 
       # This is for plugins that will load at startup without using packadd:
@@ -247,6 +251,7 @@
           rPlugin = true;
           zig = true;
           latex = true;
+          typst = true;
           python = true;
           themer = true;
           colorscheme = "gruvbox";
@@ -271,6 +276,32 @@
           rPlugin = false;
           zig = false;
           latex = true;
+          typst = false;
+          themer = true;
+          python = false;
+          colorscheme = "gruvbox";
+        };
+      };
+      nixcatsTypst = {pkgs, ...}: {
+        # they contain a settings set defined above
+        # see :help nixCats.flake.outputs.settings
+        settings = {
+          suffix-path = true;
+          suffix-LD = true;
+          wrapRc = true;
+          # IMPORTANT:
+          # your alias may not conflict with your other packages.
+          aliases = ["ntyp"];
+          # neovim-unwrapped = inputs.neovim-nightly-overlay.packages.${pkgs.system}.neovim;
+        };
+        # and a set of categories that you want
+        # (and other information to pass to lua)
+        categories = {
+          general = true;
+          rPlugin = false;
+          zig = false;
+          latex = false;
+          typst = true;
           themer = true;
           python = false;
           colorscheme = "gruvbox";

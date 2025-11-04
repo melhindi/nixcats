@@ -11,6 +11,9 @@ end
 if nixCats('latex') then
   servers.texlab = {}
 end
+if nixCats('typst') then
+  servers.tinymist = {}
+end
 if nixCats('zig') then
   servers.zls = {}
 end
