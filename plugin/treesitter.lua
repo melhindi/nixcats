@@ -4,7 +4,7 @@ end
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
-require('nvim-treesitter.configs').setup {
+require('nvim-treesitter').setup {
   highlight = { enable = true, },
   indent = { enable = false, },
   incremental_selection = {
