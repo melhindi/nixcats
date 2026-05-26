@@ -49,7 +49,10 @@
   } @ inputs: let
     inherit (nixCats) utils;
     luaPath = "${./.}";
-    forEachSystem = utils.eachSystem nixpkgs.lib.platforms.all;
+    forEachSystem = utils.eachSystem [
+      "x86_64-linux"
+      "aarch64-linux"
+    ];
     # the following extra_pkg_config contains any values
     # which you want to pass to the config set of nixpkgs
     # import nixpkgs { config = extra_pkg_config; inherit system; }

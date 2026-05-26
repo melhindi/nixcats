@@ -3,5 +3,4 @@ if not nixCats('general') then
 end
 
 local colorschemeName = nixCats('colorscheme')
-vim.o.background = "dark"
 vim.cmd.colorscheme(colorschemeName)

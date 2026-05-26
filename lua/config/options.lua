@@ -15,7 +15,7 @@ vim.opt.incsearch = true
 vim.opt.smartindent = true
 vim.opt.wrap = false
 
-vim.opt.background = "light"
+vim.opt.background = "dark"
 vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.undodir = os.getenv("HOME") .. "/.nvimbackups"
