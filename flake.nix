@@ -144,7 +144,6 @@
           friendly-snippets
           luasnip
           blink-cmp
-          blink-cmp-spell
           nvim-lspconfig
           nvim-treesitter-textobjects
           nvim-treesitter.withAllGrammars

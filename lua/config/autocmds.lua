@@ -13,3 +13,10 @@ vim.api.nvim_create_autocmd('BufWritePre',{
     vim.lsp.buf.format()
   end
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "gitcommit", "markdown", "rmd", "tex", "text", "typst" },
+  callback = function()
+    vim.opt_local.spell = true
+  end,
+})
