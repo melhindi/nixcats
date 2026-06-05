@@ -150,7 +150,8 @@
           nvim-lspconfig
           nvim-treesitter-textobjects
           nvim-treesitter.withAllGrammars
-          telescope-nvim
+          snacks-nvim
+          flash-nvim
           nerdcommenter
           vim-tmux-navigator
           which-key-nvim

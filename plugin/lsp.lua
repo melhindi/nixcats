@@ -34,17 +34,23 @@ vim.lsp.config('*', {
       vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
     end
 
-    local telescope = require('telescope.builtin')
-
     nmap('<leader>cn', vim.lsp.buf.rename, '[R]e[n]ame')
     nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
     nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
     nmap('<leader>d', vim.lsp.buf.type_definition, 'Type [D]efinition')
-    nmap('<leader>r', telescope.lsp_references, '[G]oto [R]eferences')
-    nmap('<leader>i', telescope.lsp_implementations, '[G]oto [I]mplementation')
+    nmap('<leader>r', function()
+      Snacks.picker.lsp_references()
+    end, '[G]oto [R]eferences')
+    nmap('<leader>i', function()
+      Snacks.picker.lsp_implementations()
+    end, '[G]oto [I]mplementation')
 
-    nmap('<leader>s', telescope.lsp_document_symbols, '[D]ocument [S]ymbols')
-    nmap('<leader>ws', telescope.lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+    nmap('<leader>s', function()
+      Snacks.picker.lsp_symbols()
+    end, '[D]ocument [S]ymbols')
+    nmap('<leader>ws', function()
+      Snacks.picker.lsp_workspace_symbols()
+    end, '[W]orkspace [S]ymbols')
 
     -- See `:help K` for why this keymap
     nmap('K', vim.lsp.buf.hover, 'Hover Documentation')

@@ -59,17 +59,6 @@ vim.keymap.set({ "n", "x" }, "k", function()
   return vim.v.count > 1 and "m'" .. vim.v.count .. "k" or "k"
 end, { noremap = true, expr = true })
 
-local builtin = require('telescope.builtin')
-vim.keymap.set('n', '<leader> ', builtin.find_files, { desc = 'Telescope find files' })
-vim.keymap.set('n', '<leader>/', builtin.live_grep, { desc = 'Telescope live grep' })
-vim.keymap.set('n', '<leader>?', builtin.current_buffer_fuzzy_find, { desc = 'Telescope fuzzy find buffer' })
-vim.keymap.set('n', '<leader>"', builtin.registers, { desc = 'Telescope registers' })
-vim.keymap.set('n', '<leader>.', builtin.current_buffer_fuzzy_find, { desc = 'Telescope fuzzy find buffer' })
-vim.keymap.set('n', '<leader>,', builtin.buffers, { desc = 'Telescope buffers' })
---        { "<leader>/", "<cmd>Telescope live_grep<cr>", desc = "Grep Files" },
 local neotree = require('neo-tree.command')
 vim.keymap.set('n', '<leader>e', function() neotree.execute({toggle = true}) end, {desc = "Explorer NeoTree (Root Dir)"})
 vim.keymap.set('n', '<leader>E', function() neotree.execute({toggle = true, dir = vim.uv.cwd()}) end, {desc = "Explorer NeoTree (cwd)"})
--- { "<leader>e", "<leader>fe", desc = "Explorer NeoTree (Root Dir)", remap = true },
-
---vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
