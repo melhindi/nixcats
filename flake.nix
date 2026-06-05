@@ -155,6 +155,11 @@
           vim-tmux-navigator
           which-key-nvim
           neo-tree-nvim
+          oil-nvim
+          yanky-nvim
+          mini-operators
+          mini-pairs
+          mini-surround
           lualine-nvim
         ];
         zig = with pkgs.vimPlugins; [
