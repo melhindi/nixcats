@@ -136,6 +136,9 @@
           tinymist
           typst
         ];
+        jj = with pkgs; [
+          jujutsu
+        ];
       };
 
       # This is for plugins that will load at startup without using packadd:
@@ -168,6 +171,10 @@
         ];
         latex = with pkgs.vimPlugins; [
           vimtex
+        ];
+        jj = with pkgs.vimPlugins; [
+          jj-nvim
+          hunk-nvim
         ];
         themer = with pkgs.vimPlugins;
           (builtins.getAttr (categories.colorscheme or "gruvbox") {
@@ -261,6 +268,7 @@
           latex = true;
           typst = true;
           python = true;
+          jj = true;
           themer = true;
           colorscheme = "gruvbox";
         };
