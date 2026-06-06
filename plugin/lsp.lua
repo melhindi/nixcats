@@ -8,6 +8,9 @@ local servers = {}
 if nixCats('python') then
   servers.basedpyright = {}
 end
+if nixCats('rust') then
+  servers.rust_analyzer = {}
+end
 if nixCats('latex') then
   servers.texlab = {}
 end

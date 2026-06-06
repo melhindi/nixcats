@@ -132,6 +132,9 @@
         python = with pkgs; [
           basedpyright
         ];
+        rust = with pkgs; [
+          rust-analyzer
+        ];
         typst = with pkgs; [
           tinymist
           typst
@@ -268,6 +271,7 @@
           latex = true;
           typst = true;
           python = true;
+          rust = true;
           jj = true;
           themer = true;
           colorscheme = "gruvbox";
