@@ -4,8 +4,12 @@ end
 
 require("snacks").setup({
   bigfile = {},
+  image = {},
+  indent = {},
+  notifier = {},
   picker = {},
   rename = {},
+  scope = {},
 })
 
 vim.keymap.set("n", "<leader> ", function()
