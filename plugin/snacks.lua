@@ -35,3 +35,7 @@ end, { desc = "Buffer lines" })
 vim.keymap.set("n", "<leader>,", function()
   Snacks.picker.buffers()
 end, { desc = "Buffers" })
+
+vim.keymap.set("n", "<leader>k", function()
+  Snacks.picker.keymaps()
+end, { desc = "Keymaps" })
