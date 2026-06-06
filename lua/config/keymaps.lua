@@ -1,6 +1,5 @@
 local keymap = vim.api.nvim_set_keymap
 local default_opts = { noremap = true, silent = true }
-local expr_opts = { noremap = true, expr = true, silent = true }
 
 -- Modes
 --   normal_mode = "n",
@@ -19,9 +18,19 @@ keymap("n", "N", "Nzz", default_opts)
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 
--- Move cursor when line wrap is activated
-keymap("n", "k", "v:count == 0 ? 'gk' : 'k'", expr_opts)
-keymap("n", "j", "v:count == 0 ? 'gj' : 'j'", expr_opts)
+local function vertical_move(key)
+  local visual_key = key == "j" and "gj" or "gk"
+  return vim.v.count > 1 and "m'" .. vim.v.count .. key or visual_key
+end
+
+-- Use display-line movement for wrapped lines, but record counted jumps in the jumplist.
+vim.keymap.set({ "n", "x" }, "j", function()
+  return vertical_move("j")
+end, { noremap = true, expr = true, silent = true, desc = "Down" })
+
+vim.keymap.set({ "n", "x" }, "k", function()
+  return vertical_move("k")
+end, { noremap = true, expr = true, silent = true, desc = "Up" })
 
 -- Cancel search highlighting with ESC -- not required for nvim lazy starterTemplate
 keymap("n", "<ESC>", ":nohlsearch<Bar>:echo<CR>", default_opts)
@@ -49,15 +58,6 @@ vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, { noremap = true, sil
 
 -- correct spelling
 vim.keymap.set("i", "<C-l>", "<c-g>u<Esc>[s1z=`]a<c-g>u", { noremap = true })
-
--- numbered moves to jump list
-vim.keymap.set({ "n", "x" }, "j", function()
-  return vim.v.count > 1 and "m'" .. vim.v.count .. "j" or "j"
-end, { noremap = true, expr = true })
-
-vim.keymap.set({ "n", "x" }, "k", function()
-  return vim.v.count > 1 and "m'" .. vim.v.count .. "k" or "k"
-end, { noremap = true, expr = true })
 
 local neotree = require('neo-tree.command')
 vim.keymap.set('n', '<leader>e', function() neotree.execute({toggle = true}) end, {desc = "Explorer NeoTree (Root Dir)"})
