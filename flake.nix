@@ -117,6 +117,7 @@
           lua-language-server
           stylua
           nixd
+          tree-sitter
         ];
         cpp = with pkgs; [
           gcc
