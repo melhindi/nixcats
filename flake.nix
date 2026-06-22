@@ -61,6 +61,42 @@
     extra_pkg_config = {
       # allowUnfree = true;
     };
+
+    # Build nvimcom as part of the Nix closure so R.nvim does not need to
+    # install it into a writable library at startup.
+    mkNvimcom = pkgs:
+      pkgs.rPackages.buildRPackage {
+        pname = "nvimcom";
+        version = builtins.elemAt (
+          builtins.match
+          ".*Version: ([^[:space:]]+).*"
+          (builtins.readFile "${inputs.plugins-rNvim}/nvimcom/DESCRIPTION")
+        ) 0;
+        src = "${inputs.plugins-rNvim}/nvimcom";
+        nativeBuildInputs = [
+          pkgs.gcc
+          pkgs.gnumake
+        ];
+      };
+
+    # R.nvim still compiles its server from a writable checkout, but the R
+    # library itself should stay in the Nix store.
+    mkRRuntime = pkgs:
+      pkgs.rWrapper.override {
+        packages = with pkgs.rPackages; [
+          (mkNvimcom pkgs)
+          knitr
+          sqldf
+          languageserver
+          rmarkdown
+          styler
+          Cairo
+          dplyr
+          ggrepel
+          directlabels
+        ];
+      };
+
     # management of the system variable is one of the harder parts of using flakes.
 
     # so I have done it here in an interesting way to keep it out of the way.
@@ -102,7 +138,9 @@
       name,
       mkPlugin,
       ...
-    } @ packageDef: {
+    } @ packageDef: let
+      rRuntime = mkRRuntime pkgs;
+    in {
       # to define and use a new category, simply add a new list to a set here,
       # and later, you will include categoryname = true; in the set you
       # provide when you build the package using this builder function.
@@ -143,13 +181,18 @@
         jj = with pkgs; [
           jujutsu
         ];
+        rPlugin = with pkgs; [
+          rRuntime
+          gcc
+          gnumake
+          gnutar
+          tree-sitter
+        ];
       };
 
       # This is for plugins that will load at startup without using packadd:
       startupPlugins = {
-        rPlugin = with pkgs.neovimPlugins; [
-          rNvim
-        ];
+        rPlugin = [];
         general = with pkgs.vimPlugins; [
           friendly-snippets
           luasnip
@@ -212,9 +255,7 @@
       # this section is for environmentVariables that should be available
       # at RUN TIME for plugins. Will be available to path within neovim terminal
       environmentVariables = {
-        #test = {
-        #  CATTESTVAR = "It worked!";
-        #};
+        # Intentionally left empty. The bootstrap wrapper owns R setup.
       };
 
       # If you know what these are, you can provide custom ones by category here.
@@ -342,6 +383,48 @@
         categoryDefinitions
         packageDefinitions;
       defaultPackage = nixCatsBuilder defaultPackageName;
+      rRuntime = mkRRuntime pkgs;
+      bootstrapNvim = pkgs.writeShellApplication {
+        name = "nvim";
+        runtimeInputs = [
+          pkgs.coreutils
+          pkgs.gcc
+          pkgs.gnumake
+          pkgs.gnutar
+          pkgs.gnugrep
+          pkgs.gnused
+          pkgs.tree-sitter
+        ];
+        text = ''
+          set -euo pipefail
+
+          real_nvim="${defaultPackage}/bin/nixcats"
+          cache_root="''${XDG_CACHE_HOME:-$HOME/.cache}/nvim-bootstrap"
+          r_root="$cache_root/r.nvim"
+          r_src="${inputs.plugins-rNvim}"
+
+          mkdir -p "$cache_root"
+          export PATH="${rRuntime}/bin:$PATH"
+          export RNVIM_BOOTSTRAP_HOME="$r_root"
+
+          if [ ! -f "$r_root/.source" ] || [ "$(cat "$r_root/.source")" != "$r_src" ]; then
+            rm -rf "$r_root"
+            mkdir -p "$r_root"
+            cp -a "$r_src/." "$r_root/"
+            chmod -R u+rwX "$r_root"
+            printf '%s\n' "$r_src" > "$r_root/.source"
+          fi
+
+          if ! grep -q 'local grammar = config.rnvim_home .. "/resources/tree-sitter-rout/grammar.js"' "$r_root/lua/r/config.lua"; then
+            sed -i '/local check_rout_parser = function()/a\
+    local grammar = config.rnvim_home .. "/resources/tree-sitter-rout/grammar.js"\
+    if vim.fn.filereadable(grammar) ~= 1 then return end' "$r_root/lua/r/config.lua"
+            sed -i 's#local mt1 = mtime(config.rnvim_home .. "/resources/tree-sitter-rout/grammar.js")#local mt1 = mtime(grammar)#' "$r_root/lua/r/config.lua"
+          fi
+
+          exec "$real_nvim" --cmd "set runtimepath^=$r_root" "$@"
+        '';
+      };
       # this is just for using utils such as pkgs.mkShell
       # The one used to build neovim is resolved inside the builder
       # and is passed to our categoryDefinitions and packageDefinitions
@@ -351,14 +434,17 @@
 
       # this will make a package out of each of the packageDefinitions defined above
       # and set the default package to the one passed in here.
-      packages = utils.mkAllWithDefault defaultPackage;
+      packages = (utils.mkAllWithDefault defaultPackage) // {
+        default = bootstrapNvim;
+        nvim-bootstrap = bootstrapNvim;
+      };
 
       # choose your package for devShell
       # and add whatever else you want in it.
       devShells = {
         default = pkgs.mkShell {
           name = defaultPackageName;
-          packages = [defaultPackage];
+          packages = [bootstrapNvim defaultPackage];
           inputsFrom = [];
           shellHook = ''
           '';
