@@ -7,7 +7,15 @@ require("snacks").setup({
   image = {},
   indent = {},
   notifier = {},
-  picker = {},
+  picker = {
+    sources = {
+      lsp_symbols = {
+        -- zls reports named structs (`const Name = struct {}`) as constants, which are
+        -- filtered out by default.
+        filter = { zig = true },
+      },
+    },
+  },
   rename = {},
   scope = {},
 })

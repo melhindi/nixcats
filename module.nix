@@ -65,7 +65,6 @@ in {
       nvim-treesitter.withAllGrammars
       snacks-nvim
       flash-nvim
-      nerdcommenter
       vim-tmux-navigator
       which-key-nvim
       neo-tree-nvim
@@ -107,9 +106,10 @@ in {
     ];
   };
 
+  # No zig-vim: treesitter and zls cover highlighting, indent and formatting.
   config.specs.zig = {
     enable = enabled "zig";
-    data = [pkgs.vimPlugins.zig-vim];
+    data = null;
     runtimePkgs = with pkgs; [
       zls
       zig

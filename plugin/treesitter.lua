@@ -2,10 +2,6 @@ if not nixCats('general') then
   return
 end
 
-require('nvim-treesitter').setup({
-  install_dir = vim.fn.stdpath('data') .. '/site',
-})
-
 vim.api.nvim_create_autocmd('FileType', {
   group = vim.api.nvim_create_augroup('TreesitterStart', { clear = true }),
   callback = function(args)
@@ -13,109 +9,9 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
-local selection_stacks = {}
-
-local function node_end_position(node)
-  local start_row, start_col, end_row, end_col = node:range()
-
-  if end_col > 0 then
-    return start_row, start_col, end_row, end_col - 1
-  end
-
-  local previous_row = math.max(start_row, end_row - 1)
-  local line = vim.api.nvim_buf_get_lines(0, previous_row, previous_row + 1, false)[1] or ''
-  return start_row, start_col, previous_row, #line
-end
-
-local function select_node(node, push)
-  if not node then
-    return
-  end
-
-  if push then
-    local bufnr = vim.api.nvim_get_current_buf()
-    selection_stacks[bufnr] = selection_stacks[bufnr] or {}
-    table.insert(selection_stacks[bufnr], node)
-  end
-
-  local start_row, start_col, end_row, end_col = node_end_position(node)
-  vim.cmd('normal! \027')
-  vim.api.nvim_win_set_cursor(0, { start_row + 1, start_col })
-  vim.cmd('normal! v')
-  vim.api.nvim_win_set_cursor(0, { end_row + 1, end_col })
-end
-
-local function current_selection_node()
-  local stack = selection_stacks[vim.api.nvim_get_current_buf()]
-  if stack and #stack > 0 then
-    return stack[#stack]
-  end
-
-  return vim.treesitter.get_node({ ignore_injections = false })
-end
-
-local function init_selection()
-  selection_stacks[vim.api.nvim_get_current_buf()] = {}
-  select_node(vim.treesitter.get_node({ ignore_injections = false }), true)
-end
-
-local function node_incremental()
-  local node = current_selection_node()
-  if node and node:parent() then
-    select_node(node:parent(), true)
-  else
-    init_selection()
-  end
-end
-
-local scope_node_types = {
-  block = true,
-  chunk = true,
-  class_declaration = true,
-  class_definition = true,
-  function_declaration = true,
-  function_definition = true,
-  function_item = true,
-  function_statement = true,
-  method_declaration = true,
-  method_definition = true,
-  module = true,
-  source_file = true,
-}
-
-local function scope_incremental()
-  local node = current_selection_node()
-  while node do
-    node = node:parent()
-    if node and scope_node_types[node:type()] then
-      select_node(node, true)
-      return
-    end
-  end
-end
-
-local function node_decremental()
-  local stack = selection_stacks[vim.api.nvim_get_current_buf()]
-  if not stack or #stack <= 1 then
-    return
-  end
-
-  table.remove(stack)
-  select_node(stack[#stack], false)
-end
-
-local function incremental_selection()
-  if vim.fn.mode():match('[vV]') then
-    node_incremental()
-  else
-    init_selection()
-  end
-end
-
-vim.keymap.set('n', 'gzi', init_selection, { desc = 'Treesitter node selection' })
-vim.keymap.set('x', 'gzi', node_incremental, { desc = 'Treesitter node selection' })
-vim.keymap.set('x', 'gzs', scope_incremental, { desc = 'Treesitter scope selection' })
-vim.keymap.set('x', 'gzd', node_decremental, { desc = 'Treesitter shrink selection' })
+-- Incremental selection uses Neovim's built-ins: `v`, then `an`/`in` to grow/shrink
+-- to the enclosing/inner node, `[n`/`]n` for siblings; `an`/`in` also work as text
+-- objects (e.g. `dan`). Inside flash's `S`, `;`/`,` grow/shrink.
 
 require('nvim-treesitter-textobjects').setup({
   select = {
@@ -167,19 +63,15 @@ vim.keymap.set({ 'n', 'x', 'o' }, ']m', function()
   ts_move.goto_next_start('@function.outer', 'textobjects')
 end, { desc = 'Next function start' })
 
-vim.keymap.set({ 'n', 'x', 'o' }, ']]', function()
-  ts_move.goto_next_start('@function.outer', 'textobjects')
-end, { desc = 'Next function start' })
-
+-- In diff mode, keep the built-in ]c/[c (jump to the next/previous change).
 vim.keymap.set({ 'n', 'x', 'o' }, ']c', function()
-  ts_move.goto_next_start('@class.outer', 'textobjects')
-end, { desc = 'Next class start' })
+  if vim.wo.diff then
+    return ']c'
+  end
+  return "<Cmd>lua require('nvim-treesitter-textobjects.move').goto_next_start('@class.outer', 'textobjects')<CR>"
+end, { expr = true, desc = 'Next class start' })
 
 vim.keymap.set({ 'n', 'x', 'o' }, ']M', function()
-  ts_move.goto_next_end('@function.outer', 'textobjects')
-end, { desc = 'Next function end' })
-
-vim.keymap.set({ 'n', 'x', 'o' }, '))', function()
   ts_move.goto_next_end('@function.outer', 'textobjects')
 end, { desc = 'Next function end' })
 
@@ -191,19 +83,14 @@ vim.keymap.set({ 'n', 'x', 'o' }, '[m', function()
   ts_move.goto_previous_start('@function.outer', 'textobjects')
 end, { desc = 'Previous function start' })
 
-vim.keymap.set({ 'n', 'x', 'o' }, '[[', function()
-  ts_move.goto_previous_start('@function.outer', 'textobjects')
-end, { desc = 'Previous function start' })
-
 vim.keymap.set({ 'n', 'x', 'o' }, '[c', function()
-  ts_move.goto_previous_start('@class.outer', 'textobjects')
-end, { desc = 'Previous class start' })
+  if vim.wo.diff then
+    return '[c'
+  end
+  return "<Cmd>lua require('nvim-treesitter-textobjects.move').goto_previous_start('@class.outer', 'textobjects')<CR>"
+end, { expr = true, desc = 'Previous class start' })
 
 vim.keymap.set({ 'n', 'x', 'o' }, '[M', function()
-  ts_move.goto_previous_end('@function.outer', 'textobjects')
-end, { desc = 'Previous function end' })
-
-vim.keymap.set({ 'n', 'x', 'o' }, '((', function()
   ts_move.goto_previous_end('@function.outer', 'textobjects')
 end, { desc = 'Previous function end' })
 
@@ -211,11 +98,12 @@ vim.keymap.set({ 'n', 'x', 'o' }, '[]', function()
   ts_move.goto_previous_end('@class.outer', 'textobjects')
 end, { desc = 'Previous class end' })
 
-vim.keymap.set({ 'n', 'x', 'o' }, ']d', function()
+-- ]I/[I rather than ]d/[d, which are Neovim's diagnostic jumps.
+vim.keymap.set({ 'n', 'x', 'o' }, ']I', function()
   ts_move.goto_next('@conditional.outer', 'textobjects')
 end, { desc = 'Next conditional' })
 
-vim.keymap.set({ 'n', 'x', 'o' }, '[d', function()
+vim.keymap.set({ 'n', 'x', 'o' }, '[I', function()
   ts_move.goto_previous('@conditional.outer', 'textobjects')
 end, { desc = 'Previous conditional' })
 

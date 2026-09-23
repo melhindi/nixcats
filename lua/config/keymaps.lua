@@ -36,11 +36,17 @@ end, { noremap = true, expr = true, silent = true, desc = "Up" })
 keymap("n", "<ESC>", ":nohlsearch<Bar>:echo<CR>", default_opts)
 
 -- home row jump beginning and end of line
-vim.keymap.set("n", "H", "^")
-vim.keymap.set("n", "L", "$")
+vim.keymap.set({ "n", "x", "o" }, "H", "^", { desc = "First non-blank character" })
+vim.keymap.set({ "n", "x", "o" }, "L", "$", { desc = "End of line" })
 
--- Replace word under curser in document
-vim.keymap.set("n", "<leader>r", ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<Left><Left><Left>", {desc = "Replace word under cursor in doc"})
+-- Move the current line or selection up/down
+vim.keymap.set("n", "gk", "<cmd>move .-2<CR>", { desc = "Move line up" })
+vim.keymap.set("n", "gj", "<cmd>move .+1<CR>", { desc = "Move line down" })
+vim.keymap.set("x", "gk", ":move '<-2<CR>gv", { desc = "Move selection up" })
+vim.keymap.set("x", "gj", ":move '>+1<CR>gv", { desc = "Move selection down" })
+
+-- Replace word under curser in document (<leader>r is LSP references)
+vim.keymap.set("n", "<leader>cr", ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<Left><Left><Left>", {desc = "Replace word under cursor in doc"})
 
 --- Evaluate line as shell command
 vim.keymap.set("n", "<leader><CR>", ":.!bash<CR>", {desc = "Evaluate line as shell cmd"})
@@ -52,12 +58,17 @@ vim.keymap.set({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Sav
 vim.keymap.set("n", "<leader>bb", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
 vim.keymap.set("n", "<leader>bd", "<cmd>bd<cr>", { desc = "Delete current Buffer" })
 
--- lsp keymaps
-vim.keymap.set("n", "<leader>lr", vim.lsp.buf.rename, { noremap = true, silent = true, desc = "LSP Rename" })
-vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, { noremap = true, silent = true, desc = "LSP Code Action" })
-
 -- correct spelling
 vim.keymap.set("i", "<C-l>", "<c-g>u<Esc>[s1z=`]a<c-g>u", { noremap = true })
+vim.keymap.set("n", "<leader>us", function()
+  vim.opt_local.spell = not vim.opt_local.spell:get()
+end, { desc = "Toggle spellcheck" })
+
+-- Neovim's built-in undo tree, loaded on first use
+vim.keymap.set("n", "<leader>uu", function()
+  vim.cmd.packadd("nvim.undotree")
+  require("undotree").open()
+end, { desc = "Open undo tree" })
 
 local neotree = require('neo-tree.command')
 vim.keymap.set('n', '<leader>e', function() neotree.execute({toggle = true}) end, {desc = "Explorer NeoTree (Root Dir)"})

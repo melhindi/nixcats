@@ -66,12 +66,8 @@ vim.keymap.set({ "n", "x", "o" }, "s", function()
 end, { desc = "Flash" })
 
 vim.keymap.set({ "n", "x", "o" }, "S", function()
-  flash.treesitter({
-    actions = {
-      ["<C-Space>"] = "next",
-      ["<BS>"] = "prev",
-    },
-  })
+  -- `;`/`,` grow/shrink the selection (flash defaults)
+  flash.treesitter()
 end, { desc = "Flash Treesitter" })
 
 vim.keymap.set("o", "r", function()

@@ -1,7 +1,3 @@
--- Options are automatically loaded before lazy.nvim startup
--- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
--- Add any additional options here
-
 vim.opt.nu = true
 vim.opt.relativenumber = true
 
@@ -36,6 +32,12 @@ vim.opt.confirm = true
 vim.opt.signcolumn = "yes"
 vim.opt.splitright = true
 vim.opt.splitkeep = "screen"
+vim.opt.jumpoptions = "view" -- restore the view (scroll position) when jumping back
+vim.opt.cursorline = true
+vim.opt.colorcolumn = "100"
+vim.opt.list = true
+vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
+vim.opt.virtualedit = "block" -- allow the cursor past the end of lines in visual block mode
 
 
 vim.opt.foldmethod = "expr"
