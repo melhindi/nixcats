@@ -6,7 +6,10 @@ inputs: {
   options,
   ...
 }: let
-  inherit (import ./nix/r.nix {rNvimSrc = inputs.plugins-rNvim;}) mkRRuntime;
+  rNvim = import ./nix/r-nvim.nix {
+    inherit pkgs;
+    src = inputs.plugins-rNvim;
+  };
   enabled = name: config.settings.categories.${name} or true;
 in {
   imports = [wlib.wrapperModules.neovim];
@@ -149,16 +152,12 @@ in {
     runtimePkgs = [pkgs.jujutsu];
   };
 
-  # R.nvim itself is put on the runtimepath by the bootstrap wrapper in flake.nix.
+  # R itself comes from outside (your profile or a project devShell), see
+  # `lib.mkNvimcom` in flake.nix. R.nvim runs `make` on startup (a no-op, as
+  # rnvimserver is prebuilt) and fails without it.
   config.specs.rPlugin = {
     enable = enabled "rPlugin";
-    data = null;
-    runtimePkgs = with pkgs; [
-      (mkRRuntime pkgs)
-      gcc
-      gnumake
-      gnutar
-      tree-sitter
-    ];
+    data = [rNvim.plugin];
+    runtimePkgs = [pkgs.gnumake];
   };
 }

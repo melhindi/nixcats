@@ -8,10 +8,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # R.nvim is not added as a plugin; the bootstrap wrapper below copies it
-    # into a writable cache and prepends it to the runtimepath.
+    # Fetched with submodules for the tree-sitter-rout grammar.
     plugins-rNvim = {
-      url = "github:R-nvim/R.nvim";
+      type = "git";
+      url = "https://github.com/R-nvim/R.nvim";
+      submodules = true;
       flake = false;
     };
   };
@@ -27,7 +28,11 @@
       "x86_64-linux"
       "aarch64-linux"
     ];
-    inherit (import ./nix/r.nix {rNvimSrc = inputs.plugins-rNvim;}) mkRRuntime;
+    mkNvimcom = pkgs:
+      (import ./nix/r-nvim.nix {
+        inherit pkgs;
+        src = inputs.plugins-rNvim;
+      }).nvimcom;
 
     module = lib.modules.importApply ./module.nix inputs;
     wrapper = wrappers.lib.evalModule module;
@@ -38,12 +43,16 @@
       (lib.subtractLists enabled ["rPlugin" "zig" "latex" "typst" "python" "rust" "jj"])
       (_: false);
   in {
+    # nvimcom for an R installed from the same lock as this config (e.g. your profile R):
+    # `rWrapper.override { packages = [ (mkNvimcom pkgs) ]; }`. Project devShells don't
+    # need it; R.nvim installs the matching nvimcom into the user R library itself.
+    lib = {inherit mkNvimcom;};
+
     wrapperModules.default = module;
     wrappers.default = wrapper.config;
 
     packages = forEachSystem (system: let
       pkgs = import nixpkgs {inherit system;};
-      rRuntime = mkRRuntime pkgs;
       nixcats = wrapper.config.wrap {inherit pkgs;};
       nixcatsTex = wrapper.config.wrap {
         inherit pkgs;
@@ -57,51 +66,10 @@
         settings.aliases = [];
         settings.categories = onlyWith ["typst"];
       };
-      bootstrapNvim = pkgs.writeShellApplication {
-        name = "nvim";
-        runtimeInputs = [
-          pkgs.coreutils
-          pkgs.gcc
-          pkgs.gnumake
-          pkgs.gnutar
-          pkgs.gnugrep
-          pkgs.gnused
-          pkgs.tree-sitter
-        ];
-        text = ''
-                set -euo pipefail
-
-                real_nvim="${nixcats}/bin/nixcats"
-                cache_root="''${XDG_CACHE_HOME:-$HOME/.cache}/nvim-bootstrap"
-                r_root="$cache_root/r.nvim"
-                r_src="${inputs.plugins-rNvim}"
-
-                mkdir -p "$cache_root"
-                export PATH="${rRuntime}/bin:$PATH"
-                export RNVIM_BOOTSTRAP_HOME="$r_root"
-
-                if [ ! -f "$r_root/.source" ] || [ "$(cat "$r_root/.source")" != "$r_src" ]; then
-                  rm -rf "$r_root"
-                  mkdir -p "$r_root"
-                  cp -a "$r_src/." "$r_root/"
-                  chmod -R u+rwX "$r_root"
-                  printf '%s\n' "$r_src" > "$r_root/.source"
-                fi
-
-                if ! grep -q 'local grammar = config.rnvim_home .. "/resources/tree-sitter-rout/grammar.js"' "$r_root/lua/r/config.lua"; then
-                  sed -i '/local check_rout_parser = function()/a\
-          local grammar = config.rnvim_home .. "/resources/tree-sitter-rout/grammar.js"\
-          if vim.fn.filereadable(grammar) ~= 1 then return end' "$r_root/lua/r/config.lua"
-                  sed -i 's#local mt1 = mtime(config.rnvim_home .. "/resources/tree-sitter-rout/grammar.js")#local mt1 = mtime(grammar)#' "$r_root/lua/r/config.lua"
-                fi
-
-                exec "$real_nvim" --cmd "set runtimepath^=$r_root" "$@"
-        '';
-      };
     in {
       inherit nixcats nixcatsTex nixcatsTypst;
-      default = bootstrapNvim;
-      nvim-bootstrap = bootstrapNvim;
+      default = nixcats;
+      nvimcom = mkNvimcom pkgs;
     });
 
     devShells = forEachSystem (system: let
@@ -109,10 +77,7 @@
     in {
       default = pkgs.mkShell {
         name = "nixcats";
-        packages = [
-          self.packages.${system}.default
-          self.packages.${system}.nixcats
-        ];
+        packages = [self.packages.${system}.default];
       };
     });
 

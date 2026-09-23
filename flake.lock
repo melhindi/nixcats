@@ -20,16 +20,18 @@
       "flake": false,
       "locked": {
         "lastModified": 1779410698,
-        "narHash": "sha256-7DpOOcZJsYzJv3GebnRbfe44C32cGmC+PjefP/KLv3Y=",
-        "owner": "R-nvim",
-        "repo": "R.nvim",
+        "narHash": "sha256-CSBzv2sV09DbijOyGvNU9kAC9GA4kEHU0MQAsaFcVhk=",
+        "ref": "refs/heads/main",
         "rev": "0c15985056bff2f473ceaf04eae31622e21ac25b",
-        "type": "github"
+        "revCount": 578,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/R-nvim/R.nvim"
       },
       "original": {
-        "owner": "R-nvim",
-        "repo": "R.nvim",
-        "type": "github"
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/R-nvim/R.nvim"
       }
     },
     "root": {
