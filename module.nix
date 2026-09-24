@@ -74,6 +74,7 @@ in {
       mini-pairs
       mini-surround
       lualine-nvim
+      render-markdown-nvim
     ];
     runtimePkgs = with pkgs; [
       lua-language-server
