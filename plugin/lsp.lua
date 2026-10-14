@@ -15,7 +15,13 @@ if nixCats('latex') then
   servers.texlab = {}
 end
 if nixCats('typst') then
-  servers.tinymist = {}
+  servers.tinymist = {
+    settings = {
+      formatterMode = 'typstyle',
+      -- Writes the PDF next to the source file.
+      exportPdf = 'onSave',
+    },
+  }
 end
 if nixCats('zig') then
   servers.zls = {}

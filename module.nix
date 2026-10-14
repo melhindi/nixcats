@@ -137,7 +137,7 @@ in {
 
   config.specs.typst = {
     enable = enabled "typst";
-    data = null;
+    data = [pkgs.vimPlugins.typst-preview-nvim];
     runtimePkgs = with pkgs; [
       tinymist
       typst
