@@ -2,11 +2,11 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1790149054,
-        "narHash": "sha256-FfjXg6mAzKQBCY+7V9keGWOXG4DV2Eym/qA987lFl8A=",
+        "lastModified": 1794644783,
+        "narHash": "sha256-3GnIGIy15bMduoS9RnWqKTmsJLWThla42UFtm0S7+us=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "8825bebf6324e0579d012936eff73379af284b6d",
+        "rev": "5d2b81a7a3be3e2f832879028e4d60abbf58e9a0",
         "type": "github"
       },
       "original": {
@@ -19,11 +19,11 @@
     "plugins-rNvim": {
       "flake": false,
       "locked": {
-        "lastModified": 1779410698,
-        "narHash": "sha256-CSBzv2sV09DbijOyGvNU9kAC9GA4kEHU0MQAsaFcVhk=",
+        "lastModified": 1794605215,
+        "narHash": "sha256-xuERaxUxiXd3uKtMJIVwcMP8jzZmOLUSiFyjvIY4yb0=",
         "ref": "refs/heads/main",
-        "rev": "0c15985056bff2f473ceaf04eae31622e21ac25b",
-        "revCount": 578,
+        "rev": "53be16a3c11272a975f866cc63aaf31b212e109a",
+        "revCount": 608,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/R-nvim/R.nvim"
@@ -48,11 +48,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788981141,
-        "narHash": "sha256-7xWS16u13YGlRNKWaAPzRbEyh4OLOXJe31k7h4AnXNU=",
+        "lastModified": 1794870394,
+        "narHash": "sha256-+e+EBD7g4ErCYLjtndYDajwyZGn3P573S3y2fd90gKY=",
         "owner": "nix-community",
         "repo": "nix-wrapper-modules",
-        "rev": "1db3c116a6aa61823f8d8f3c47c306846428fc54",
+        "rev": "0e23367a94ea83bc678fb510984b369dae02bfd2",
         "type": "github"
       },
       "original": {
